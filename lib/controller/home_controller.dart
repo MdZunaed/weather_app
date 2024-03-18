@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:http/http.dart';
 import 'package:weather/models/current_weather_model.dart';
+import 'package:weather/models/hourly_weather-model.dart';
 import 'package:weather/utils/urls.dart';
 
 class HomeController extends GetxController {
@@ -13,8 +14,10 @@ class HomeController extends GetxController {
   //   getCurrentWeather();
   // }
   bool loading = false;
+  bool hourlyDataLoading = false;
 
   CurrentWeatherModel weatherData = CurrentWeatherModel();
+  HourlyWeatherModel hourlyWeatherData = HourlyWeatherModel();
 
   Future<void> getCurrentWeather() async {
     loading = true;
@@ -29,6 +32,23 @@ class HomeController extends GetxController {
       print(response.statusCode);
       log("something went wrong");
       loading = false;
+      update();
+    }
+  }
+
+  Future<void> getHourlyWeather() async {
+    hourlyDataLoading = true;
+    update();
+    final response = await get(Uri.parse(Urls.forecastWeather));
+    if (response.statusCode == 200) {
+      print(response.body);
+      hourlyWeatherData = HourlyWeatherModel.fromJson(jsonDecode(response.body));
+      hourlyDataLoading = false;
+      update();
+    } else {
+      print(response.statusCode);
+      log("something went wrong");
+      hourlyDataLoading = false;
       update();
     }
   }

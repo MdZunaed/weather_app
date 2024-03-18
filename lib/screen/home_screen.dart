@@ -4,6 +4,12 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:weather/constant/strings.dart';
 import 'package:weather/controller/home_controller.dart';
+import 'package:weather/models/current_weather_model.dart';
+import 'package:weather/models/hourly_weather-model.dart';
+import 'package:weather/widgets/days_weather_card.dart';
+import 'package:weather/widgets/hourly_temp_card.dart';
+
+import '../widgets/low_high_temp.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     Get.find<HomeController>().getCurrentWeather();
+    Get.find<HomeController>().getHourlyWeather();
   }
 
   @override
@@ -31,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
           //   builder: (context, snapshot) {
           //     if (snapshot.hasData) {
           var weather = controller.weatherData;
+          var hWeather = controller.hourlyWeatherData;
           if (controller.loading) {
             return const Center(child: CupertinoActivityIndicator());
           }
@@ -53,101 +61,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  //const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    margin: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15), color: theme.primaryColor.withOpacity(0.1)),
-                    child: Column(
-                      children: [
-                        Image.asset(
-                            //"assets/weather/10n.png",
-                            "assets/weather/${weather.weather?[0].icon}.png",
-                            height: 120,
-                            fit: BoxFit.cover),
-                        const SizedBox(height: 5),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              //"32$degree",
-                              "${weather.main?.temp?.toInt()}$degree",
-                              style: TextStyle(
-                                  color: theme.primaryColor, fontSize: 50, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              //"Sunny",
-                              weather.weather?[0].main ?? '',
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                        lowHighTemp(theme, weather.main?.tempMin?.toInt(), weather.main?.tempMax?.toInt())
-                      ],
-                    ),
-                  ),
-                  //const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: List.generate(
-                      3,
-                      (index) {
-                        List images = [clouds, humidity, windSpeed];
-                        List values = [
-                          "${weather.clouds?.all}%",
-                          "${weather.main?.humidity}%",
-                          "${weather.wind?.speed} km/h"
-                        ];
-                        return Container(
-                          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: theme.primaryColor.withOpacity(0.15)),
-                          child: Column(
-                            children: [
-                              Image.asset(images[index], height: 60),
-                              const SizedBox(height: 5),
-                              Text(
-                                values[index],
-                                style: theme.textTheme.bodyLarge,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  currentTemperature(theme, weather),
+                  cloudHumidityWindSpeed(weather, theme),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    height: 150,
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      primary: false,
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: 6,
-                      separatorBuilder: (c, i) => const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: theme.primaryColor.withOpacity(0.1)),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Text("${index + 1} AM", style: theme.textTheme.bodyMedium),
-                              Image.asset("assets/weather/10n.png", height: 65),
-                              Text("35$degree",
-                                  style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  hourlyTemperature(controller, hWeather),
                   const SizedBox(height: 20),
                   Align(
                     alignment: Alignment.centerLeft,
@@ -164,31 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     separatorBuilder: (c, i) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       String days = DateFormat("EEEE").format(DateTime.now().add(Duration(days: index + 1)));
-                      return Container(
-                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: theme.primaryColor.withOpacity(0.1)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(days, style: theme.textTheme.bodyLarge),
-                            ),
-                            Expanded(
-                              child: TextButton.icon(
-                                  onPressed: null,
-                                  icon: Image.asset("assets/weather/10n.png", width: 40),
-                                  label: Text("20$degree",
-                                      style: TextStyle(
-                                          color: theme.primaryColor,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600))),
-                            ),
-                            lowHighTemp(theme, 20, 40),
-                          ],
-                        ),
-                      );
+                      return DaysWeatherCard(
+                          days: days, icon: "10n", temp: "20", lowest: "20", highest: "40");
                     },
                   ),
                 ],
@@ -205,17 +99,112 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Row lowHighTemp(ThemeData theme, low, high) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.arrow_downward, size: 16),
-        Text("$low$degree/", style: theme.textTheme.bodySmall),
-        Text("$high$degree", style: theme.textTheme.bodySmall),
-        const Icon(Icons.arrow_upward, size: 16),
-      ],
+  Visibility hourlyTemperature(HomeController controller, HourlyWeatherModel hWeather) {
+    return Visibility(
+      visible: controller.hourlyDataLoading == false,
+      replacement: const CupertinoActivityIndicator(),
+      child: SizedBox(
+        height: 150,
+        child: ListView.separated(
+          shrinkWrap: true,
+          primary: false,
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          itemCount: (hWeather.list?.length ?? 0) > 8 ? 8 : (hWeather.list?.length ?? 0),
+          separatorBuilder: (c, i) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            var time = DateFormat.jm()
+                .format(DateTime.fromMillisecondsSinceEpoch(hWeather.list![index].dt!.toInt() * 1000));
+            var icon = hWeather.list?[index].weather?[0].icon;
+            var temp = hWeather.list?[index].main?.temp?.toInt();
+            return HourlyTempCard(time: time, icon: icon, temp: "$temp");
+          },
+        ),
+      ),
     );
   }
+
+  Container currentTemperature(ThemeData theme, CurrentWeatherModel weather) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(20),
+      decoration:
+          BoxDecoration(borderRadius: BorderRadius.circular(15), color: theme.primaryColor.withOpacity(0.1)),
+      child: Column(
+        children: [
+          Image.asset(
+              //"assets/weather/10n.png",
+              "assets/weather/${weather.weather?[0].icon}.png",
+              height: 120,
+              fit: BoxFit.cover),
+          const SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                //"32$degree",
+                "${weather.main?.temp?.toInt()}$degree",
+                style: TextStyle(color: theme.primaryColor, fontSize: 50, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                //"Sunny",
+                weather.weather?[0].main ?? '',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ],
+          ),
+          LowHighTemp(
+              lowest: "${weather.main?.tempMin?.toInt()}", highest: "${weather.main?.tempMax?.toInt()}")
+        ],
+      ),
+    );
+  }
+
+  Row cloudHumidityWindSpeed(CurrentWeatherModel weather, ThemeData theme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: List.generate(
+        3,
+        (index) {
+          List images = [clouds, humidity, windSpeed];
+          List values = [
+            "${weather.clouds?.all}%",
+            "${weather.main?.humidity}%",
+            "${weather.wind?.speed} km/h"
+          ];
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10), color: theme.primaryColor.withOpacity(0.15)),
+            child: Column(
+              children: [
+                Image.asset(images[index], height: 60),
+                const SizedBox(height: 5),
+                Text(
+                  values[index],
+                  style: theme.textTheme.bodyLarge,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Row lowHighTemp(low, high) {
+  //   ThemeData theme = Theme.of(context);
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.center,
+  //     children: [
+  //       const Icon(Icons.arrow_downward, size: 16),
+  //       Text("$low$degree/", style: theme.textTheme.bodySmall),
+  //       Text("$high$degree", style: theme.textTheme.bodySmall),
+  //       const Icon(Icons.arrow_upward, size: 16),
+  //     ],
+  //   );
+  // }
 
   AppBar appbar() {
     ThemeData theme = Theme.of(context);
