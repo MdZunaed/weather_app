@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:weather/constant/strings.dart';
 import 'package:weather/controller/home_controller.dart';
 import 'package:weather/models/current_weather_model.dart';
-import 'package:weather/models/hourly_weather-model.dart';
+import 'package:weather/models/hourly_weather_model.dart';
 import 'package:weather/widgets/days_weather_card.dart';
 import 'package:weather/widgets/hourly_temp_card.dart';
 
@@ -33,10 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: appbar(),
       body: GetBuilder<HomeController>(
         builder: (controller) {
-          // return FutureBuilder(
-          //   future: controller.getCurrentWeather(),
-          //   builder: (context, snapshot) {
-          //     if (snapshot.hasData) {
           var weather = controller.weatherData;
           var hWeather = controller.hourlyWeatherData;
           if (controller.loading) {
@@ -67,33 +63,37 @@ class _HomeScreenState extends State<HomeScreen> {
                   hourlyTemperature(controller, hWeather),
                   const SizedBox(height: 20),
                   Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Next 7 days",
-                      style: theme.textTheme.titleSmall,
-                    ),
-                  ),
+                      alignment: Alignment.centerLeft,
+                      child: Text("Next 5 days", style: theme.textTheme.titleSmall)),
                   const SizedBox(height: 10),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    primary: false,
-                    itemCount: 7,
-                    separatorBuilder: (c, i) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      String days = DateFormat("EEEE").format(DateTime.now().add(Duration(days: index + 1)));
-                      return DaysWeatherCard(
-                          days: days, icon: "10n", temp: "20", lowest: "20", highest: "40");
-                    },
-                  ),
+                  nextFiveDaysWeather(controller),
                 ],
               ),
             ),
           );
-          //     } else {
-          //       return const Center(child: CupertinoActivityIndicator());
-          //     }
-          //   },
-          // );
+        },
+      ),
+    );
+  }
+
+  Visibility nextFiveDaysWeather(HomeController controller) {
+    return Visibility(
+      visible: controller.hourlyDataLoading == false,
+      replacement: const CupertinoActivityIndicator(),
+      child: ListView.separated(
+        shrinkWrap: true,
+        primary: false,
+        itemCount: controller.dailyWeatherData.length,
+        separatorBuilder: (c, i) => const SizedBox(height: 8),
+        itemBuilder: (context, index) {
+          var dayWeather = controller.dailyWeatherData[index];
+          String days = DateFormat("EEEE").format(DateTime.now().add(Duration(days: index + 1)));
+          var temp = dayWeather.temp.toInt();
+          var icon = dayWeather.weatherIcon;
+          var lowest = dayWeather.minTemp.toInt();
+          var highest = dayWeather.maxTemp.toInt();
+          return DaysWeatherCard(
+              days: days, icon: icon, temp: "$temp", lowest: "$lowest", highest: "$highest");
         },
       ),
     );

@@ -4,7 +4,8 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:http/http.dart';
 import 'package:weather/models/current_weather_model.dart';
-import 'package:weather/models/hourly_weather-model.dart';
+import 'package:weather/models/daily_weather_model.dart';
+import 'package:weather/models/hourly_weather_model.dart';
 import 'package:weather/utils/urls.dart';
 
 class HomeController extends GetxController {
@@ -18,6 +19,7 @@ class HomeController extends GetxController {
 
   CurrentWeatherModel weatherData = CurrentWeatherModel();
   HourlyWeatherModel hourlyWeatherData = HourlyWeatherModel();
+  List<DailyWeatherModel> dailyWeatherData = [];
 
   Future<void> getCurrentWeather() async {
     loading = true;
@@ -43,6 +45,13 @@ class HomeController extends GetxController {
     if (response.statusCode == 200) {
       print(response.body);
       hourlyWeatherData = HourlyWeatherModel.fromJson(jsonDecode(response.body));
+      final List<dynamic> data = jsonDecode(response.body)['list'];
+      for (int i = 0; i < 5; i++) {
+        // Get data for the next 5 days
+        final Map<String, dynamic> dayData = data[i * 8]; // Data for each day is at every 8th index
+        dailyWeatherData.add(DailyWeatherModel.fromJson(dayData));
+      }
+      log(dailyWeatherData.toString());
       hourlyDataLoading = false;
       update();
     } else {

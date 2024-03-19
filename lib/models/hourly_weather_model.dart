@@ -66,7 +66,7 @@ class WeatherList {
 
 class Main {
   double? temp;
-  double? feelsLike;
+  dynamic feelsLike;
   double? tempMin;
   double? tempMax;
   int? pressure;
@@ -126,7 +126,7 @@ class Clouds {
 }
 
 class Wind {
-  double? speed;
+  dynamic speed;
   int? deg;
   dynamic gust;
 
