@@ -16,12 +16,7 @@ class WeatherApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Weather',
-      themeMode: ThemeMode.system,
-      // theme: ThemeData(
-      //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      //   scaffoldBackgroundColor: Colors.grey,
-      //   useMaterial3: true,
-      // ),
+      themeMode: ThemeMode.light,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       initialBinding: ControllerBindings(),

@@ -193,19 +193,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Row lowHighTemp(low, high) {
-  //   ThemeData theme = Theme.of(context);
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     children: [
-  //       const Icon(Icons.arrow_downward, size: 16),
-  //       Text("$low$degree/", style: theme.textTheme.bodySmall),
-  //       Text("$high$degree", style: theme.textTheme.bodySmall),
-  //       const Icon(Icons.arrow_upward, size: 16),
-  //     ],
-  //   );
-  // }
-
   AppBar appbar() {
     ThemeData theme = Theme.of(context);
     Brightness themeMode = theme.brightness;
@@ -225,32 +212,35 @@ class _HomeScreenState extends State<HomeScreen> {
           margin: const EdgeInsets.all(5),
           decoration: BoxDecoration(
               color: theme.primaryColor.withOpacity(0.15), borderRadius: BorderRadius.circular(35)),
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Get.changeThemeMode(ThemeMode.light);
-                },
-                child: CircleAvatar(
-                  backgroundColor:
-                      themeMode == Brightness.light ? Colors.lightBlue.withOpacity(0.6) : Colors.transparent,
-                  child: Icon(
-                    Icons.light_mode_outlined,
-                    color: theme.iconTheme.color,
+          child: GetBuilder<HomeController>(builder: (controller) {
+            return Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    controller.changeThemeMode();
+                  },
+                  child: CircleAvatar(
+                    backgroundColor:
+                        controller.darkMode ? Colors.transparent : Colors.lightBlue.withOpacity(0.5),
+                    child: Icon(
+                      Icons.light_mode_outlined,
+                      color: theme.iconTheme.color,
+                    ),
                   ),
                 ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Get.changeThemeMode(ThemeMode.dark);
-                },
-                child: CircleAvatar(
-                  backgroundColor: themeMode == Brightness.dark ? Colors.lightBlue : Colors.transparent,
-                  child: Icon(Icons.dark_mode_outlined, color: theme.iconTheme.color),
+                GestureDetector(
+                  onTap: () {
+                    controller.changeThemeMode();
+                  },
+                  child: CircleAvatar(
+                    backgroundColor:
+                        controller.darkMode ? Colors.lightBlue.withOpacity(0.5) : Colors.transparent,
+                    child: Icon(Icons.dark_mode_outlined, color: theme.iconTheme.color),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          }),
         ),
       ],
     );
