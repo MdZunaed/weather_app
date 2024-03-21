@@ -81,8 +81,8 @@ class CurrentWeatherModel {
 }
 
 class CoOrd {
-  double? lon;
-  double? lat;
+  dynamic lon;
+  dynamic lat;
 
   CoOrd({this.lon, this.lat});
 
@@ -125,14 +125,14 @@ class Weather {
 }
 
 class Main {
-  double? temp;
-  double? feelsLike;
-  double? tempMin;
-  double? tempMax;
-  int? pressure;
-  int? humidity;
-  int? seaLevel;
-  int? grndLevel;
+  dynamic temp;
+  dynamic feelsLike;
+  dynamic tempMin;
+  dynamic tempMax;
+  dynamic pressure;
+  dynamic humidity;
+  dynamic seaLevel;
+  dynamic grndLevel;
 
   Main(
       {this.temp,

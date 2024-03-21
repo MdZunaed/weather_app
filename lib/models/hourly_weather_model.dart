@@ -65,14 +65,14 @@ class WeatherList {
 }
 
 class Main {
-  double? temp;
+  dynamic temp;
   dynamic feelsLike;
-  double? tempMin;
-  double? tempMax;
-  int? pressure;
-  int? seaLevel;
-  int? grndLevel;
-  int? humidity;
+  dynamic tempMin;
+  dynamic tempMax;
+  dynamic pressure;
+  dynamic seaLevel;
+  dynamic grndLevel;
+  dynamic humidity;
   dynamic tempKf;
 
   Main(
@@ -100,10 +100,10 @@ class Main {
 }
 
 class Weather {
-  int? id;
-  String? main;
-  String? description;
-  String? icon;
+  dynamic id;
+  dynamic main;
+  dynamic description;
+  dynamic icon;
 
   Weather({this.id, this.main, this.description, this.icon});
 
@@ -116,7 +116,7 @@ class Weather {
 }
 
 class Clouds {
-  int? all;
+  dynamic all;
 
   Clouds({this.all});
 
@@ -127,7 +127,7 @@ class Clouds {
 
 class Wind {
   dynamic speed;
-  int? deg;
+  dynamic deg;
   dynamic gust;
 
   Wind({this.speed, this.deg, this.gust});
@@ -150,7 +150,7 @@ class Sys {
 }
 
 class Rain {
-  double? d3h;
+  dynamic d3h;
 
   Rain({this.d3h});
 

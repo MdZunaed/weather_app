@@ -22,8 +22,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Get.find<HomeController>().getCurrentWeather();
-    Get.find<HomeController>().getHourlyWeather();
+    Get.find<HomeController>().getUserPermission();
+    //if (Get.find<HomeController>().loaded == true) {
+    //   Get.find<HomeController>().getCurrentWeather();
+    //   Get.find<HomeController>().getHourlyWeather();
+    // }
   }
 
   @override
@@ -35,6 +38,9 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (controller) {
           var weather = controller.weatherData;
           var hWeather = controller.hourlyWeatherData;
+          if (controller.loaded == false) {
+            return const Center(child: CupertinoActivityIndicator());
+          }
           if (controller.loading) {
             return const Center(child: CupertinoActivityIndicator());
           }
@@ -45,18 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(15),
               child: Column(
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        //Text("Bhuigor, Narayanganj", style: theme.textTheme.titleLarge),
-                        Text(weather.name?.toUpperCase() ?? "", style: theme.textTheme.titleLarge),
-                        Text(DateFormat("yMMMMd").format(DateTime.now()).toString(),
-                            style: theme.textTheme.titleMedium),
-                      ],
-                    ),
-                  ),
+                  locationAndDate(weather, theme),
                   currentTemperature(theme, weather),
                   cloudHumidityWindSpeed(weather, theme),
                   const SizedBox(height: 20),
@@ -72,6 +67,19 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Align locationAndDate(CurrentWeatherModel weather, ThemeData theme) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(weather.name?.toUpperCase() ?? "", style: theme.textTheme.titleLarge?.copyWith(fontSize: 28)),
+          Text(DateFormat("yMMMMd").format(DateTime.now()).toString(), style: theme.textTheme.titleMedium),
+        ],
       ),
     );
   }
@@ -195,11 +203,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   AppBar appbar() {
     ThemeData theme = Theme.of(context);
-    Brightness themeMode = theme.brightness;
     return AppBar(
       leading: Padding(
         padding: const EdgeInsets.all(5),
-        child: InkWell(
+        child: GestureDetector(
+          onTap: () {
+            Get.snackbar("⚠️", "Under Development");
+          },
           child: CircleAvatar(
             backgroundColor: theme.primaryColor.withOpacity(0.15),
             child: Icon(Icons.widgets_outlined, color: theme.iconTheme.color),
