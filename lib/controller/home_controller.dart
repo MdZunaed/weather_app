@@ -36,6 +36,11 @@ class HomeController extends GetxController {
     update();
   }
 
+  onRefreshScreen() {
+    dailyWeatherData.clear();
+    getUserPermission();
+  }
+
   getUserPermission() async {
     bool isLocationEnabled;
     LocationPermission locationPermission;

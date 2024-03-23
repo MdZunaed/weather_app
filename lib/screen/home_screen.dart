@@ -8,6 +8,7 @@ import 'package:weather/models/current_weather_model.dart';
 import 'package:weather/models/hourly_weather_model.dart';
 import 'package:weather/widgets/days_weather_card.dart';
 import 'package:weather/widgets/hourly_temp_card.dart';
+import 'package:weather/widgets/loading_indicator.dart';
 
 import '../widgets/low_high_temp.dart';
 
@@ -39,13 +40,13 @@ class _HomeScreenState extends State<HomeScreen> {
           var weather = controller.weatherData;
           var hWeather = controller.hourlyWeatherData;
           if (controller.loaded == false) {
-            return const Center(child: CupertinoActivityIndicator());
+            return const LoadingIndicator();
           }
           if (controller.loading) {
-            return const Center(child: CupertinoActivityIndicator());
+            return const LoadingIndicator();
           }
           return RefreshIndicator(
-            onRefresh: () => controller.getCurrentWeather(),
+            onRefresh: () => controller.onRefreshScreen(),
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(15),
